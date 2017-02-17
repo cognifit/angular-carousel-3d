@@ -45,6 +45,9 @@
             this.state = this.states.PENDING;
             this.deferred = $q.defer();
             this.promise = this.deferred.promise;
+            
+            this.vertically = params.vertically || false;
+            this.hack_carouselHeight = params.hack_carouselHeight || 270;
         }
 
         // == Public  methods
@@ -203,7 +206,11 @@
         }
 
         function getOuterHeight() {
-            return parseInt(this.height + this.border, 10);
+            if (this.vertically) {
+                return parseInt(this.hack_carouselHeight + this.border, 10);
+            } else {
+                return parseInt(this.height + this.border, 10);
+            }
         }
 
         function setLock(value) {
