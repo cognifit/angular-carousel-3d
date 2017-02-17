@@ -31,6 +31,14 @@
 
         // == Watch changes on model and options object
         $scope.$watch('[vm.model, vm.options]', init, true);
+        
+        /* hack: controllers that use the carousel need a way to programatically go forward/backwards
+           we set a prefix so (theoretically) in the future we can use more than 1 carousel with a single controller
+        */
+        if (typeof vm.options.controllerFunctionPrefix === "string") {
+            $scope.$root[vm.options.controllerFunctionPrefix + "goBackward"] = goPrev;
+            $scope.$root[vm.options.controllerFunctionPrefix + "goForward"] = goNext;
+        }
 
         function init() {
             Carousel3dService
