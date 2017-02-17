@@ -79,11 +79,25 @@
 
             var outerHeight = carousel3d.getOuterHeight(),
                 outerWidth = carousel3d.getOuterWidth(),
-                slideTop = (carousel3d.topSpace === "auto") ? 0 : ((outerHeight / 2) - (outerHeight / 2)),
-                slideLeft = ((carousel3d.width / 2) - (outerWidth / 2)),
+                slideTop,
+                slideLeft,
+                slideHeight,
+                slideWidth,
                 speed = (speedTime) ? (speedTime / 1000) : (carousel3d.animationSpeed / 1000),
                 zIndex = 999;
-
+            
+            if (carousel3d.vertically) {
+                slideTop = ((outerHeight / 2) - (carousel3d.height / 2));
+                slideLeft = ((carousel3d.width / 2) - (outerWidth / 2));
+                slideHeight = carousel3d.height;
+                slideWidth = outerWidth;
+            } else {
+                slideTop = (carousel3d.topSpace === "auto") ? 0 : ((outerHeight / 2) - (outerHeight / 2));
+                slideLeft = ((carousel3d.width / 2) - (outerWidth / 2));
+                slideHeight = outerHeight;
+                slideWidth = outerWidth;
+            }
+            
             // == Set other slides styles
             angular.forEach(carousel3d.slides, function (slide, index) {
                 var css = {
@@ -93,8 +107,8 @@
                     overflow: 'hidden',
                     top: slideTop + 'px',
                     'border-width': carousel3d.border + 'px',
-                    width: outerWidth,
-                    height: outerHeight
+                    width: slideWidth,
+                    height: slideHeight
                 };
 
                 if (animate) {
@@ -124,8 +138,8 @@
                     'transform': 'none',
                     left: slideLeft + 'px',
                     top: slideTop + 'px',
-                    width: outerWidth + "px",
-                    height: outerHeight + "px"
+                    width: slideWidth + "px",
+                    height: slideHeight + "px"
                 });
 
             angular.forEach(carousel3d.rightSlides, function (slide, index) {
@@ -136,7 +150,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 1,
+                        opacity: 0.5,
                         visibility: 'visible',
                         zIndex: zIndex
                     });
@@ -150,7 +164,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 1,
+                        opacity: 0.3,
                         visibility: 'visible',
                         zIndex: zIndex
                     });
@@ -181,15 +195,28 @@
 
         function setCss(i, zIndex, positive) {
 
-            var leftRemain = (carousel3d.space == "auto") ? parseInt((i + 1) * (carousel3d.width / 1.5)) : parseInt((i + 1) * (carousel3d.space)),
-                transform = (positive) ?
-                            'translateX(' + (leftRemain) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(-' + carousel3d.perspective + 'deg)' :
-                            'translateX(-' + (leftRemain) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(' + carousel3d.perspective + 'deg)',
+            var offset,
+                transform,
                 left = "0%",
-                top = (carousel3d.topSpace === "auto") ? "none" : parseInt((i + 1) * (carousel3d.space)),
+                top,
                 width = "none",
                 height = "none",
                 overflow = "visible";
+                        
+            if (carousel3d.vertically) {
+                offset = (carousel3d.space == "auto") ? parseInt((i + 1) * (/* carousel3d.height */ 700 / 1.5)) : parseInt((i + 1) * (carousel3d.space));
+                transform = (positive) ?
+                            'translateY(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(-' + carousel3d.perspective + 'deg)' :
+                            'translateY(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(' + carousel3d.perspective + 'deg)';
+                top = ((carousel3d.getOuterHeight() / 2) - (carousel3d.height / 2));
+            } else {
+                offset = (carousel3d.space == "auto") ? parseInt((i + 1) * (carousel3d.width / 1.5)) : parseInt((i + 1) * (carousel3d.space));
+                transform = (positive) ?
+                            'translateX(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(-' + carousel3d.perspective + 'deg)' :
+                            'translateX(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(' + carousel3d.perspective + 'deg)';
+                top = (carousel3d.topSpace === "auto") ? "none" : parseInt((i + 1) * (carousel3d.space));
+            }
+            
 
             return {
                 '-webkit-transform': transform,
