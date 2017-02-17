@@ -1,7 +1,7 @@
 /*!
  * Name: angular-carousel-3d
  * GIT Page: https://github.com/Wlada/angular-carousel-3d
- * Version: 0.1.1 - 2016-05-30T20:01:50.496Z
+ * Version: 0.1.1 - 2017-02-17T13:22:54.140Z
  * License: MIT
  */
 
@@ -32,7 +32,7 @@
         var carousel3dSlide = {
             require: '^carousel3d',
             restrict: 'AE',
-            template: '<div class=\"slide-3d\" ng-click=\"carousel3d.slideClicked($index)\" ng-swipe-left=\"carousel3d.goPrev()\" ng-swipe-right=\"carousel3d.goNext()\" ng-transclude></div>',
+            template: '<div class=\"slide-3d\" ng-click=\"carousel3d.slideClicked($index)\" ng-swipe-left=\"carousel3d.goPrev_swipedLeft()\" ng-swipe-right=\"carousel3d.goNext_swipedRight()\" ng-transclude></div>',
             replace: true,
             transclude: true,
             link: linkFunc
@@ -72,6 +72,8 @@
         vm.slideClicked = slideClicked;
         vm.goPrev = goPrev;
         vm.goNext = goNext;
+        vm.goNext_swipedRight = goNext_swipedRight;
+        vm.goPrev_swipedLeft = goPrev_swipedLeft;
 
         var $wrapper = null,
             $slides = [],
@@ -129,11 +131,25 @@
 
             var outerHeight = carousel3d.getOuterHeight(),
                 outerWidth = carousel3d.getOuterWidth(),
-                slideTop = (carousel3d.topSpace === "auto") ? 0 : ((outerHeight / 2) - (outerHeight / 2)),
-                slideLeft = ((carousel3d.width / 2) - (outerWidth / 2)),
+                slideTop,
+                slideLeft,
+                slideHeight,
+                slideWidth,
                 speed = (speedTime) ? (speedTime / 1000) : (carousel3d.animationSpeed / 1000),
                 zIndex = 999;
-
+            
+            if (carousel3d.vertically) {
+                slideTop = ((outerHeight / 2) - (carousel3d.height / 2));
+                slideLeft = ((carousel3d.width / 2) - (outerWidth / 2));
+                slideHeight = carousel3d.height;
+                slideWidth = outerWidth;
+            } else {
+                slideTop = (carousel3d.topSpace === "auto") ? 0 : ((outerHeight / 2) - (outerHeight / 2));
+                slideLeft = ((carousel3d.width / 2) - (outerWidth / 2));
+                slideHeight = outerHeight;
+                slideWidth = outerWidth;
+            }
+            
             // == Set other slides styles
             angular.forEach(carousel3d.slides, function (slide, index) {
                 var css = {
@@ -143,8 +159,8 @@
                     overflow: 'hidden',
                     top: slideTop + 'px',
                     'border-width': carousel3d.border + 'px',
-                    width: outerWidth,
-                    height: outerHeight
+                    width: slideWidth,
+                    height: slideHeight
                 };
 
                 if (animate) {
@@ -174,8 +190,8 @@
                     'transform': 'none',
                     left: slideLeft + 'px',
                     top: slideTop + 'px',
-                    width: outerWidth + "px",
-                    height: outerHeight + "px"
+                    width: slideWidth + "px",
+                    height: slideHeight + "px"
                 });
 
             angular.forEach(carousel3d.rightSlides, function (slide, index) {
@@ -186,7 +202,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 1,
+                        opacity: 0.5,
                         visibility: 'visible',
                         zIndex: zIndex
                     });
@@ -200,7 +216,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 1,
+                        opacity: 0.3,
                         visibility: 'visible',
                         zIndex: zIndex
                     });
@@ -217,10 +233,12 @@
 
             if(carousel3d.autoRotationSpeed > 0) {
                 vm.autoRotation = $interval(function() {
-                    if(vm.dir === 'rtl') {
-                        vm.goPrev();
-                    } else {
-                        vm.goNext();
+                    if (!vm.autoRotationLocked){
+                        if(vm.dir === 'rtl') {
+                            vm.goPrev();
+                        } else {
+                            vm.goNext();
+                        }
                     }
                 }, carousel3d.autoRotationSpeed);
             }
@@ -229,15 +247,28 @@
 
         function setCss(i, zIndex, positive) {
 
-            var leftRemain = (carousel3d.space == "auto") ? parseInt((i + 1) * (carousel3d.width / 1.5)) : parseInt((i + 1) * (carousel3d.space)),
-                transform = (positive) ?
-                            'translateX(' + (leftRemain) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(-' + carousel3d.perspective + 'deg)' :
-                            'translateX(-' + (leftRemain) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(' + carousel3d.perspective + 'deg)',
+            var offset,
+                transform,
                 left = "0%",
-                top = (carousel3d.topSpace === "auto") ? "none" : parseInt((i + 1) * (carousel3d.space)),
+                top,
                 width = "none",
                 height = "none",
                 overflow = "visible";
+                        
+            if (carousel3d.vertically) {
+                offset = (carousel3d.space == "auto") ? parseInt((i + 1) * (/* carousel3d.height */ 700 / 1.5)) : parseInt((i + 1) * (carousel3d.space));
+                transform = (positive) ?
+                            'translateY(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(-' + carousel3d.perspective + 'deg)' :
+                            'translateY(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(' + carousel3d.perspective + 'deg)';
+                top = ((carousel3d.getOuterHeight() / 2) - (carousel3d.height / 2));
+            } else {
+                offset = (carousel3d.space == "auto") ? parseInt((i + 1) * (carousel3d.width / 1.5)) : parseInt((i + 1) * (carousel3d.space));
+                transform = (positive) ?
+                            'translateX(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(-' + carousel3d.perspective + 'deg)' :
+                            'translateX(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(' + carousel3d.perspective + 'deg)';
+                top = (carousel3d.topSpace === "auto") ? "none" : parseInt((i + 1) * (carousel3d.space));
+            }
+            
 
             return {
                 '-webkit-transform': transform,
@@ -287,6 +318,12 @@
 
             return farchange;
         }
+        
+        function goNext_swipedRight () {
+            if (!carousel3d.vertically) {
+                goNext()
+            }
+        }
 
         function goNext(farchange) {
 
@@ -304,6 +341,12 @@
             }
 
             return false;
+        }
+        
+        function goPrev_swipedLeft () {
+            if (!carousel3d.vertically) {
+                goPrev()
+            }
         }
 
         function goPrev(farchange) {
@@ -398,7 +441,7 @@
         var carousel3d = {
             restrict: 'AE',
             template: '' +
-            '<div class=\"carousel-3d-container\" ng-switch="vm.isLoading">' +
+            '<div class=\"carousel-3d-container\" ng-switch="vm.isLoading" ng-mouseenter="vm.autoRotationLocked=true" ng-mouseleave="vm.autoRotationLocked=false">' +
             '   <div class="carousel-3d-loader" ng-switch-when=\"true\">' +
             '       <div class=\"carousel-3d-loader-circle\" style=\"-webkit-transform:scale(0.75)\"><div><div></div><div></div></div></div>' +
             '       <div class="carousel-3d-loader-percentage">{{ vm.percentLoaded }}</div>' +
@@ -497,6 +540,9 @@
             this.state = this.states.PENDING;
             this.deferred = $q.defer();
             this.promise = this.deferred.promise;
+            
+            this.vertically = params.vertically || false;
+            this.hack_carouselHeight = params.hack_carouselHeight || 270;
         }
 
         // == Public  methods
@@ -655,7 +701,11 @@
         }
 
         function getOuterHeight() {
-            return parseInt(this.height + this.border, 10);
+            if (this.vertically) {
+                return parseInt(this.hack_carouselHeight + this.border, 10);
+            } else {
+                return parseInt(this.height + this.border, 10);
+            }
         }
 
         function setLock(value) {
