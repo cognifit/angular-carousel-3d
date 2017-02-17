@@ -22,6 +22,8 @@
         vm.slideClicked = slideClicked;
         vm.goPrev = goPrev;
         vm.goNext = goNext;
+        vm.goNext_swipedRight = goNext_swipedRight;
+        vm.goPrev_swipedLeft = goPrev_swipedLeft;
 
         var $wrapper = null,
             $slides = [],
@@ -266,6 +268,12 @@
 
             return farchange;
         }
+        
+        function goNext_swipedRight () {
+            if (!carousel3d.vertically) {
+                goNext()
+            }
+        }
 
         function goNext(farchange) {
 
@@ -283,6 +291,12 @@
             }
 
             return false;
+        }
+        
+        function goPrev_swipedLeft () {
+            if (!carousel3d.vertically) {
+                goPrev()
+            }
         }
 
         function goPrev(farchange) {
