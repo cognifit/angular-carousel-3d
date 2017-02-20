@@ -1,7 +1,7 @@
 /*!
  * Name: angular-carousel-3d
  * GIT Page: https://github.com/Wlada/angular-carousel-3d
- * Version: 0.1.1 - 2017-02-20T08:45:20.026Z
+ * Version: 0.1.1 - 2017-02-20T08:57:01.780Z
  * License: MIT
  */
 
@@ -217,7 +217,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 0.5,
+                        opacity: 0,
                         visibility: 'visible',
                         width: slideWidth + "px",
                         height: slideHeight + "px",
@@ -233,7 +233,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 0.3,
+                        opacity: 0,
                         width: slideWidth + "px",
                         height: slideHeight + "px",
                         visibility: 'visible',

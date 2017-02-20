@@ -167,7 +167,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 0.5,
+                        opacity: 0,
                         visibility: 'visible',
                         width: slideWidth + "px",
                         height: slideHeight + "px",
@@ -183,7 +183,7 @@
                 getSlide(slide)
                     .css(css)
                     .css({
-                        opacity: 0.3,
+                        opacity: 0,
                         width: slideWidth + "px",
                         height: slideHeight + "px",
                         visibility: 'visible',
