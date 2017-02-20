@@ -1,7 +1,7 @@
 /*!
  * Name: angular-carousel-3d
  * GIT Page: https://github.com/Wlada/angular-carousel-3d
- * Version: 0.1.1 - 2017-02-17T13:22:54.140Z
+ * Version: 0.1.1 - 2017-02-20T08:45:20.026Z
  * License: MIT
  */
 
@@ -81,6 +81,14 @@
 
         // == Watch changes on model and options object
         $scope.$watch('[vm.model, vm.options]', init, true);
+        
+        /* hack: controllers that use the carousel need a way to programatically go forward/backwards
+           we set a prefix so (theoretically) in the future we can use more than 1 carousel with a single controller
+        */
+        if (typeof vm.options.controllerFunctionPrefix === "string") {
+            $scope.$root[vm.options.controllerFunctionPrefix + "goBackward"] = goPrev;
+            $scope.$root[vm.options.controllerFunctionPrefix + "goForward"] = goNext;
+        }
 
         function init() {
             Carousel3dService
@@ -98,12 +106,17 @@
                         var outerHeight = carousel3d.getOuterHeight(),
                             outerWidth = carousel3d.getOuterWidth();
 
-                        $element.css({'height': outerHeight + 'px'});
+                        $element.css({
+                            'height': outerHeight + 'px'
+                        });
 
                         $timeout(function () {
 
                             $wrapper = angular.element($element[0].querySelector('.carousel-3d'));
-                            $wrapper.css({'width': outerWidth + 'px', 'height': outerHeight + 'px'});
+                            $wrapper.css({
+                                'width': outerWidth + 'px',
+                                'height': outerHeight + 'px'
+                            });
                             $slides = $wrapper.children();
 
                             render();
@@ -113,7 +126,9 @@
                     // == Preloaded images reject  handler
                     function handleReject(carousel) {
 
-                        $element.css({'height': carousel.getOuterHeight() + 'px'});
+                        $element.css({
+                            'height': carousel.getOuterHeight() + 'px'
+                        });
 
                         vm.isLoading = false;
                         vm.isSuccessful = false;
@@ -137,7 +152,7 @@
                 slideWidth,
                 speed = (speedTime) ? (speedTime / 1000) : (carousel3d.animationSpeed / 1000),
                 zIndex = 999;
-            
+
             if (carousel3d.vertically) {
                 slideTop = ((outerHeight / 2) - (carousel3d.height / 2));
                 slideLeft = ((carousel3d.width / 2) - (outerWidth / 2));
@@ -149,7 +164,7 @@
                 slideHeight = outerHeight;
                 slideWidth = outerWidth;
             }
-            
+
             // == Set other slides styles
             angular.forEach(carousel3d.slides, function (slide, index) {
                 var css = {
@@ -204,6 +219,8 @@
                     .css({
                         opacity: 0.5,
                         visibility: 'visible',
+                        width: slideWidth + "px",
+                        height: slideHeight + "px",
                         zIndex: zIndex
                     });
             });
@@ -217,6 +234,8 @@
                     .css(css)
                     .css({
                         opacity: 0.3,
+                        width: slideWidth + "px",
+                        height: slideHeight + "px",
                         visibility: 'visible',
                         zIndex: zIndex
                     });
@@ -231,10 +250,10 @@
                 getSlide(carousel3d.leftOutSlide).css(lCSS);
             }
 
-            if(carousel3d.autoRotationSpeed > 0) {
-                vm.autoRotation = $interval(function() {
-                    if (!vm.autoRotationLocked){
-                        if(vm.dir === 'rtl') {
+            if (carousel3d.autoRotationSpeed > 0) {
+                vm.autoRotation = $interval(function () {
+                    if (!vm.autoRotationLocked) {
+                        if (vm.dir === 'rtl') {
                             vm.goPrev();
                         } else {
                             vm.goNext();
@@ -254,21 +273,21 @@
                 width = "none",
                 height = "none",
                 overflow = "visible";
-                        
+
             if (carousel3d.vertically) {
-                offset = (carousel3d.space == "auto") ? parseInt((i + 1) * (/* carousel3d.height */ 700 / 1.5)) : parseInt((i + 1) * (carousel3d.space));
+                offset = (carousel3d.space == "auto") ? parseInt((i + 1) * ( /* carousel3d.height */ 700 / 1.5)) : parseInt((i + 1) * (carousel3d.space));
                 transform = (positive) ?
-                            'translateY(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(-' + carousel3d.perspective + 'deg)' :
-                            'translateY(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(' + carousel3d.perspective + 'deg)';
+                    'translateY(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(-' + carousel3d.perspective + 'deg)' :
+                    'translateY(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateX(' + carousel3d.perspective + 'deg)';
                 top = ((carousel3d.getOuterHeight() / 2) - (carousel3d.height / 2));
             } else {
                 offset = (carousel3d.space == "auto") ? parseInt((i + 1) * (carousel3d.width / 1.5)) : parseInt((i + 1) * (carousel3d.space));
                 transform = (positive) ?
-                            'translateX(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(-' + carousel3d.perspective + 'deg)' :
-                            'translateX(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(' + carousel3d.perspective + 'deg)';
+                    'translateX(' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(-' + carousel3d.perspective + 'deg)' :
+                    'translateX(-' + (offset) + 'px) translateZ(-' + (carousel3d.inverseScaling + ((i + 1) * 100)) + 'px) rotateY(' + carousel3d.perspective + 'deg)';
                 top = (carousel3d.topSpace === "auto") ? "none" : parseInt((i + 1) * (carousel3d.space));
             }
-            
+
 
             return {
                 '-webkit-transform': transform,
@@ -318,8 +337,8 @@
 
             return farchange;
         }
-        
-        function goNext_swipedRight () {
+
+        function goNext_swipedRight() {
             if (!carousel3d.vertically) {
                 goNext()
             }
@@ -342,8 +361,8 @@
 
             return false;
         }
-        
-        function goPrev_swipedLeft () {
+
+        function goPrev_swipedLeft() {
             if (!carousel3d.vertically) {
                 goPrev()
             }
@@ -381,7 +400,7 @@
                 var timeout = (diff2 === 1) ? 0 : (timeBuff);
 
                 $timeout(function () {
-                    (diff < 0) ? goPrev(diff2) : goNext(diff2);
+                    (diff < 0) ? goPrev(diff2): goNext(diff2);
                 }, timeout);
 
                 timeBuff += (carousel3d.animationSpeed / (diff2));
