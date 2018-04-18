@@ -38,6 +38,9 @@
         if (vm.options && typeof vm.options.controllerFunctionPrefix === "string") {
             $scope.$root[vm.options.controllerFunctionPrefix + "goBackward"] = goPrev;
             $scope.$root[vm.options.controllerFunctionPrefix + "goForward"] = goNext;
+        } else {
+            $scope.$root.amc_goBackward = goPrev;
+            $scope.$root.amc_goForward = goNext;
         }
 
         function init() {
